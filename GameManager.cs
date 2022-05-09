@@ -1,122 +1,38 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
+using System;
 using System.Collections;
 
 namespace Completed
 {
-	using System.Collections.Generic;		
-	using UnityEngine.UI;					
-	
-	public class GameManager : MonoBehaviour
-	{
-		public float levelStartDelay = 2f;						
-		public float turnDelay = 0.1f;							
-		public int playerFoodPoints = 100;						
-		public static GameManager instance = null;				
-		[HideInInspector] public bool playersTurn = true;		
-		
-		
-		private Text levelText;									
-		private GameObject levelImage;							
-		private BoardManager boardScript;						
-		private int level = 1;									
-		private List<Enemy> enemies;							
-		private bool enemiesMoving;								
-		private bool doingSetup = true;							
-		
-		
-		
-		void Awake()
-		{
+    public class GameManager : MonoBehaviour
+    {
+
+        public static GameManager instance = null;
+        public BoardManager boardScript;
+        
+
+        private int level = 4;
+
+        void Awake()
+        {
             if (instance == null)
-
                 instance = this;
-
-
             else if (instance != this)
+                Destroy(gameObject);
 
-                Destroy(gameObject);	
-			
-			DontDestroyOnLoad(gameObject);
-			
-			enemies = new List<Enemy>();
-			
-			boardScript = GetComponent<BoardManager>();
-			InitGame();
-		}
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        static public void CallbackInitialization()
-        {
-            SceneManager.sceneLoaded += OnSceneLoaded;
+            DontDestroyOnLoad(gameObject);
+            boardScript = GetComponent<BoardManager>();
+            initGame();
         }
 
-        static private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
+        void initGame()
         {
-            instance.level++;
-            instance.InitGame();
+            boardScript.SetupScene(level);
         }
 
-		
-		void InitGame()
-		{
-			boardScript.SetupScene(level);
-		}
-		
-		
-		
-		void HideLevelImage()
-		{
-			levelImage.SetActive(false);
-			
-			doingSetup = false;
-		}
-		
-		void Update()
-		{
-			if(playersTurn || enemiesMoving || doingSetup)
-				
-				return;
-			
-			StartCoroutine (MoveEnemies ());
-		}
-		
-		public void AddEnemyToList(Enemy script)
-		{
-			enemies.Add(script);
-		}
-		
-		
-		public void GameOver()
-		{
-			levelText.text = "After " + level + " days, you starved.";
-			
-			levelImage.SetActive(true);
-			
-			enabled = false;
-		}
-		
-		IEnumerator MoveEnemies()
-		{
-			enemiesMoving = true;
-			
-			yield return new WaitForSeconds(turnDelay);
-			
-			if (enemies.Count == 0) 
-			{
-				yield return new WaitForSeconds(turnDelay);
-			}
-			
-			for (int i = 0; i < enemies.Count; i++)
-			{
-				enemies[i].MoveEnemy ();
-				
-				yield return new WaitForSeconds(enemies[i].moveTime);
-			}
-			playersTurn = true;
-			
-			enemiesMoving = false;
-		}
-	}
+        void Update()
+        {
+
+        }
+    }
 }
-
